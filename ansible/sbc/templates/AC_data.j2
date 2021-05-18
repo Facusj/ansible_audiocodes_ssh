@@ -1,0 +1,51 @@
+{% set config_ip_group = config_ip_group %}
+{% set active_calls = active_calls %}
+
+{% set dicc = {} %}
+{% set contador_ipg = {} %}
+{% set temp = namespace(count=1) %}
+
+{% for config in config_ip_group %}
+    {% do dicc.update({config.grupo_ip : config.grupo_ip_nombre}) %}
+{% endfor %}
+
+
+{% for call in active_calls %}
+    {% if call.ip_group == "" %}
+        {% do call.update({"ip_group" : dicc.get("0") }) %}
+    {% else%}
+        {% do call.update({"ip_group" : dicc.get(call.ip_group) }) %}
+    {% endif %}
+{% endfor %}
+
+{% if active_calls | length != 0 %}
+    {% for active in active_calls %}
+        {% if active.ip_group is defined %}
+            {% if active.ip_group not in contador_ipg %}
+                {% do contador_ipg.update({active.get("ip_group") : 1 }) %}
+            {% else %}
+                {% set temp.count = contador_ipg.get(active.ip_group) %}
+                {% set temp.count = temp.count + 1 %}
+                {% do contador_ipg.update({active.get("ip_group") : temp.count }) %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    {% for reference in config_ip_group %}
+        {% if reference.grupo_ip_nombre not in contador_ipg %}
+            {% do contador_ipg.update({reference.grupo_ip_nombre : 0 }) %}
+        {% endif %}
+    {% endfor %}
+{% else %}
+    {% for name in config_ip_group %}
+        {% do contador_ipg.update({name.grupo_ip_nombre : 0 }) %}
+    {% endfor %}
+{% endif %}
+
+{# FIN DE CONFIGURACION DE ACTIVE CALLS POR IP GROUP #}
+
+{% set influx_data = {} %}
+{% set _ = influx_data.update({'active_calls': active_calls}) %}
+{% set _ = influx_data.update({'ip_group_nombre': dicc}) %}
+{% set _ = influx_data.update({'contador_ipg': contador_ipg}) %}
+
+{{ influx_data | to_nice_json }} 

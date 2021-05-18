@@ -1,0 +1,8 @@
+    - name: --- parsed active-calls ---
+      debug:
+        msg: "data parseada: {{active_calls | to_nice_json}}"
+
+
+    - name: --- parsed config-ip-group ---
+      debug:
+        msg: "data parseada: {{config_ip_group | to_nice_json}}"  

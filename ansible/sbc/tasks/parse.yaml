@@ -1,0 +1,37 @@
+    # textFSM templates
+#    - set_fact:
+#        backup: "{{audiocodesOutput.output[4]}}"
+
+    - set_fact:
+        config_ip_group: "{{ SSH[5] | parse_cli_textfsm('parsers/config_ip_group.template') }}"
+
+    - set_fact:
+        uptime: "{{ SSH[0] | parse_cli_textfsm('parsers/uptime.template') }}"
+
+    - set_fact:
+        cpu_percentage: "{{ SSH[3] | parse_cli_textfsm('parsers/cpu.template') }}"
+
+    - set_fact:
+        rtd_jitter: "{{ SSH[4] | parse_cli_textfsm('parsers/rtd_jitter.template') }}"
+
+    - set_fact:
+        version: "{{ SSH[2] | parse_cli_textfsm('parsers/version.template') }}"
+
+    - set_fact:
+        proxy_set: "{{ SSH[6] | parse_cli_textfsm('parsers/proxy_set_status.template') }}"
+    
+    - set_fact:
+        alarms: "{{ SSH[1] | parse_cli_textfsm('parsers/alarms.template') }}"
+
+    - set_fact:
+        active_calls: "{{ SSH[7] | parse_cli_textfsm('parsers/active_calls.template') }}"  
+
+    - set_fact:
+        last_calls: "{{ SSH[8] | parse_cli_textfsm('parsers/last_calls.template') }}"  
+
+    - set_fact:
+        usage_statistics: "{{ SSH[9] | parse_cli_textfsm('parsers/usage_statistics.template') }}"  
+
+    - set_fact:
+        icmp_parsed: "{{icmp_output.stdout | parse_cli_textfsm('parsers/icmp_parser.template')}}"
+      delegate_to: localhost

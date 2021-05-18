@@ -1,0 +1,39 @@
+- name: Create a directory if it does not exist
+  file:
+    path: "{{local_git_repo_path}}"
+    state: directory
+    mode: '0755'
+
+- name: copy configuration extracted from device to localhost
+  copy:
+    content: "{{backup}}"
+    dest: "{{local_git_repo_path}}/backup_{{ansible_host}}_{{tstamp['stdout_lines'][0]}}.conf"
+    owner: owner 
+    group: group
+    mode: '0774'
+  delegate_to: localhost
+
+- name: --- pull changes from git network-backups
+  shell: |
+    git pull
+  args:
+    chdir: "{{ local_git_repo_path }}"
+  run_once: true
+
+- name: --- commit changes to git network-backups
+  shell: |
+    git add .
+    git commit -m "Config snapshot taken $(date +"%Y-%m-%d %H:%M:%S")"
+    # Needed as git commit will fail if there are no changed files
+    exit 0
+    git push origin HEAD
+  args:
+    chdir: "{{ local_git_repo_path }}"
+  run_once: true
+
+- name: --- push changes to git network-backups
+  shell: |
+    git push origin HEAD
+  args:
+    chdir: "{{ local_git_repo_path }}"
+  run_once: true

@@ -1,0 +1,10 @@
+Value seq (\S+)
+Value source (\S+)
+Value severity (\S+)
+Value date (\d+.\d+.\d+\s,\s\d+:\d+:\d+)
+Value description (.*)
+
+Start
+  ^\s+${seq}\s+${source}\s+${severity}\s+${date}\s+${description}.* -> Record
+  
+

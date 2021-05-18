@@ -1,0 +1,56 @@
+---
+- name: GATHER SBC information 
+  hosts: sbc
+  connection: local
+  gather_facts: yes
+
+
+  tasks:
+
+
+    # date info for backup file 
+    - name: Get timestamp from the system
+      shell: "date +%Y-%m-%d"
+      register: tstamp
+      delegate_to: localhost
+
+    - name: SSH Commands to SBC
+      script: /usr/bin/python3 scripts/SSH_calls.pyc
+      register: sbc
+   
+    # Estos set_fact se solucionan poniendo variables de auth en inventario  
+    - set_fact:
+        sbc: "{{sbc.stdout}}"
+
+
+    - name: debug SSH
+      debug: 
+        msg: "{{ sbc }}"
+
+
+
+    ########################################################################
+
+#    - name: --- backing up sbc configuration files
+#      import_tasks: tasks/backup.yaml
+
+    - name: --- icmp data
+      import_tasks: tasks/icmp.yaml
+
+#    - name: --- debugging information of commands executed at SBCs via SSH
+#      import_tasks: tasks/debug.yaml
+
+    - name: --- parse results with textFSM
+      import_tasks: tasks/parse_calls.yaml
+  
+    - name: --- show parsed results
+      import_tasks: tasks/results_calls.yaml
+  
+    - name: --- send render data
+      import_tasks: tasks/jinja_calls.yaml
+
+    - name: --- send data to influx
+      import_tasks: tasks/influx_calls.yaml
+
+    # - name: --- send backup config to github repository
+    #   import_tasks: tasks/git.yaml

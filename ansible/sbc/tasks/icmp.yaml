@@ -1,0 +1,7 @@
+- name: icmp
+  shell: ping -c 6 -w 6 {{ansible_host}}
+  ignore_errors: true
+  register: icmp_output
+  delegate_to: localhost
+   
+

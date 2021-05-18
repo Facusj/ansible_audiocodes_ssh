@@ -1,0 +1,17 @@
+Value call_attempts (\d+)
+Value established_calls (\d+)
+Value calls_terminated_busy_line (\d+)
+Value calls_terminated_no_answer (\d+)
+Value calls_terminated_resource_allocation (\d+)
+Value calls_terminated_media_negotiation (\d+)
+Value calls_terminated_abnormally_terminated (\d+)
+
+Start
+  ^Call attempts: ${call_attempts}.*
+  ^Established calls: ${established_calls}.*
+  ^Calls terminated due to busy line: ${calls_terminated_busy_line}.*
+  ^Calls terminated due to no answer: ${calls_terminated_no_answer}.*
+  ^Calls terminated due to resource allocation failure: ${calls_terminated_resource_allocation}.*
+  ^Calls terminated due to media negotiation failure: ${calls_terminated_media_negotiation}.*
+  ^Calls abnormally terminated: ${calls_terminated_abnormally_terminated}.*
+

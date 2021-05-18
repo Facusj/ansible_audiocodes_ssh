@@ -1,0 +1,7 @@
+Value days (\d+)
+Value hours (\d+)
+Value minutes (\d+)
+Value seconds (\d+)
+
+Start
+  ^.*Uptime: ${days} \S+ ${hours} \S+ ${minutes} \S+ ${seconds}.* -> Record

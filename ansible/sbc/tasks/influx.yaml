@@ -1,0 +1,235 @@
+  - name: --- Write points into database (sbc)
+    influxdb_write:
+      hostname: "{{influxdb_ip}}"
+      database_name: "{{influxdb_database_name}}"
+      port: "{{influxdb_port}}"
+      ssl: yes
+      username: "{{influxdb_username}}"
+      password: "{{influxdb_password}}"
+      validate_certs: no
+      data_points:
+        - measurement: "{{influxdb_measurement_sbc}}"
+          tags:
+            host: "{{ansible_host}}"
+          time: "{{ ansible_date_time.iso8601 }}"
+          fields:
+            cpu: "{{cpu_percentage[0].cpu_percentage}}"
+            ram: "{{cpu_percentage[0].ram_percentage}}"
+            board: "{{version[0].board}}"
+            coders: "{{version[0].coders_voice}}"
+            control_protocols: "{{version[0].control_protocols}}"
+            uptime: "{{influx_result.uptime}}"
+            concurrent_calls: "{{influx_result.concurrent_calls}}"
+            avg_jitter: "{{influx_result.channel_stats.avg_jitter}}"
+            avg_rtd: "{{influx_result.channel_stats.avg_rtd}}"
+            time: "{{ ansible_date_time.iso8601 }}"
+    ignore_errors: yes
+    delegate_to: localhost  
+
+
+  - name: --- Write points into database (sbc service status)
+    influxdb_write:
+      hostname: "{{influxdb_ip}}"
+      database_name: "{{influxdb_database_name}}"
+      port: "{{influxdb_port}}"
+      ssl: yes
+      username: "{{influxdb_username}}"
+      password: "{{influxdb_password}}"
+      validate_certs: no
+      data_points:
+        - measurement: "{{influxdb_measurement_service_status}}"
+          tags:
+            host: "{{ansible_host}}"
+            name: "{{item.name}}"
+          time: "{{ ansible_date_time.iso8601 }}"
+          fields:
+            id: "{{item.id}}"
+            ip_address: "{{item.ip_address}}"
+            keep_alive: "{{item.keep_alive}}"
+            mode: "{{item.mode}}"
+#            name: "{{item.name}}"
+            priority: "{{item.priority}}"
+            status: "{{item.status}}"
+            status_code: "{{item.status_code}}"
+            success_count: "{{item.success_count}}"
+            time: "{{ ansible_date_time.iso8601 }}"
+    ignore_errors: yes
+    delegate_to: localhost  
+    loop: "{{ influx_result.proxy_set_status }}" 
+      
+  - name: Delete last calls
+    shell: "curl -k  https://influx.com.ar/query?db=telemetry -u user:password --data-urlencode 'q=delete from last_calls'"
+    register: delete_last_calls
+    delegate_to: localhost
+
+  - name: Delete alarms
+    shell: "curl -k  https://influx.com.ar/query?db=telemetry -u user:password --data-urlencode 'q=delete from alarms'"
+    register: delete_last_calls
+    delegate_to: localhost
+
+  - name: --- Write points into database (sbc last calls)
+    influxdb_write:
+      hostname: "{{influxdb_ip}}"
+      database_name: "{{influxdb_database_name}}"
+      port: "{{influxdb_port}}"
+      ssl: yes
+      username: "{{influxdb_username}}"
+      password: "{{influxdb_password}}"
+      validate_certs: no
+      data_points:
+        - measurement: "{{influxdb_measurement_last_calls}}"
+          tags:
+            host: "{{ansible_host}}"
+            ip_group: "{{item.ip_group}}"
+            end_time: "{{item.call_end_time}}"
+            callee: "{{item.callee}}"
+            caller: "{{item.caller}}"
+            #direction: "{{item.direction}}"
+            direction: "{% if 'Incoming' in item.direction %}Outgoing{% else %}Incoming{% endif %}"
+            duration: "{{item.duration}}"
+            remote_ip: "{{item.remote_ip}}"
+            termination_reason: "{{item.termination_reason}}"
+            type: "{{item.type}}"
+          #time: "{{ ansible_date_time.iso8601 }}"
+          fields:
+            session_id: "{{item.session_id}}"
+            #time: "{{ ansible_date_time.iso8601 }}"
+    ignore_errors: yes
+    delegate_to: localhost  
+    loop: "{{ influx_result.last_calls }}" 
+
+  - name: --- Write points into database (sbc alarms)
+    influxdb_write:
+      hostname: "{{influxdb_ip}}"
+      database_name: "{{influxdb_database_name}}"
+      port: "{{influxdb_port}}"
+      ssl: yes
+      username: "{{influxdb_username}}"
+      password: "{{influxdb_password}}"
+      validate_certs: no
+      data_points:
+        - measurement: "{{influxdb_measurement_alarms}}"
+          tags:
+            host: "{{ansible_host}}"
+            date: "{{item.date}}"
+            description: "{{item.description}}"
+            severity: "{{item.severity}}"
+            source: "{{item.source}}"
+          time: "{{ ansible_date_time.iso8601 }}"
+          fields:
+            seq: "{{item.seq}}"
+            time: "{{ ansible_date_time.iso8601 }}"
+    ignore_errors: yes
+    delegate_to: localhost  
+    loop: "{{ influx_result.alarms }}" 
+
+  - name: --- Write points into database (icmp)
+    influxdb_write:
+      hostname: "{{influxdb_ip}}"
+      database_name: "{{influxdb_database_name}}"
+      ssl: yes
+      validate_certs: no
+      port: "{{influxdb_port}}"
+      data_points:
+        - measurement: "{{influxdb_measurement_icmp}}"
+          tags:
+            host: "{{ansible_host}}"
+          time: "{{ ansible_date_time.iso8601 }}"
+          fields:
+            PACKET_TX: "{{icmp_parsed[0].PACKET_TX | int}}"
+            PACKET_RX: "{{icmp_parsed[0].PACKET_RX | int}}"
+            PACKET_LOSS: "{{icmp_parsed[0].PACKET_LOSS | int}}"
+            RTT_MIN: "{{icmp_parsed[0].RTT_MIN | int}}"
+            RTT_AVG: "{{icmp_parsed[0].RTT_AVG | int}}"
+            RTT_MAX: "{{icmp_parsed[0].RTT_MAX | int}}"
+            RTT_MDEV: "{{icmp_parsed[0].RTT_MDEV | int}}"
+            time: "{{ ansible_date_time.iso8601 }}"
+    delegate_to: localhost  
+
+  - name: --- Write points into database (usage statistics)
+    influxdb_write:
+      hostname: "{{influxdb_ip}}"
+      database_name: "{{influxdb_database_name}}"
+      port: "{{influxdb_port}}"
+      ssl: yes
+      validate_certs: no
+      data_points:
+        - measurement: "{{influxdb_measurement_usage_statistics}}"
+          tags:
+            host: "{{ansible_host}}"
+          time: "{{ ansible_date_time.iso8601 }}"
+          fields:
+            call_attempts: "{{influx_result.usage_statistics[0].call_attempts | int}}"
+            calls_terminated_abnormally_terminated: "{{influx_result.usage_statistics[0].calls_terminated_abnormally_terminated | int}}"
+            calls_terminated_busy_line: "{{influx_result.usage_statistics[0].calls_terminated_busy_line | int}}"
+            calls_terminated_media_negotiation: "{{influx_result.usage_statistics[0].calls_terminated_media_negotiation | int}}"
+            calls_terminated_no_answer: "{{influx_result.usage_statistics[0].calls_terminated_no_answer | int}}"
+            calls_terminated_resource_allocation: "{{influx_result.usage_statistics[0].calls_terminated_resource_allocation | int}}"
+            established_calls: "{{influx_result.usage_statistics[0].established_calls | int}}"
+            time: "{{ ansible_date_time.iso8601 }}"
+    delegate_to: localhost 
+
+  - name: --- Write points into database (sbc active calls)
+    influxdb_write:
+      hostname: "{{influxdb_ip}}"
+      database_name: "{{influxdb_database_name}}"
+      port: "{{influxdb_port}}"
+      ssl: yes
+      username: "{{influxdb_username}}"
+      password: "{{influxdb_password}}"
+      validate_certs: no
+      data_points:
+        - measurement: "{{influxdb_measurement_active_calls}}"
+          tags:
+            host: "{{ansible_host}}"
+            ip_group: "{{item.ip_group}}"
+            session_id: "{{item.session_id}}"
+          time: "{{ ansible_date_time.iso8601 }}"
+          fields:
+            active_calls: "{{item.active_calls}}"
+            call_start_time: "{{item.call_start_time}}"
+            endpoint: "{{item.endpoint}}"
+            caller: "{{item.caller}}"
+            callee: "{{item.callee}}"
+            direction: "{{item.direction}}"
+            remote_ip: "{{item.remote_ip}}"
+            duration: "{{item.duration}}"
+            call_state: "{{item.call_state}}"
+            time: "{{ ansible_date_time.iso8601 }}"
+    ignore_errors: yes
+    delegate_to: localhost  
+    loop: "{{ influx_result.active_calls }}"
+#    when: influx_result.active_calls is iterable
+
+
+  - name: --- Write points into database (sbc active calls IPG)
+    influxdb_write:
+      hostname: "{{influxdb_ip}}"
+      database_name: "{{influxdb_database_name}}"
+      port: "{{influxdb_port}}"
+      ssl: yes
+      username: "{{influxdb_username}}"
+      password: "{{influxdb_password}}"
+      validate_certs: no
+      data_points:
+        - measurement: "{{influxdb_measurement_active_calls_ipg}}"
+          tags:
+            host: "{{ansible_host}}"
+            active_calls_ipg: "{{item.key}}"
+          time: "{{ ansible_date_time.iso8601 }}"
+          fields:
+            active_calls_count: "{{item.value}}"
+            time: "{{ ansible_date_time.iso8601 }}"
+    ignore_errors: yes
+    delegate_to: localhost
+    loop: "{{ lookup('dict' , influx_count) }}"
+
+  - name: Alarm
+    shell: "curl -i -k XPOST https://influx.com.ar/write?db={{influxdb_database_name}} -u user:password --data-binary '{{influxdb_measurement_ipg_alert}},active_calls_ipg={{item.key}},host={{ansible_host}} active_calls_count={{item.value}}'"
+    delegate_to: localhost
+    loop: "{{ lookup('dict' , influx_count) }}"
+    
+  - name: Proxy Alarms
+    shell: "curl -i -k XPOST https://influx.com.ar/write?db={{influxdb_database_name}} -u user:password --data-binary '{{influxdb_measurement_proxy_alarm}},name={{item.name}},host={{ansible_host}} proxy_set_status={{item.status_code}}'"
+    delegate_to: localhost
+    loop: "{{ influx_result.proxy_set_status }}"  

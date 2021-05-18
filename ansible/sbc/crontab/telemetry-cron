@@ -1,0 +1,12 @@
+# .__   __.  _______ ____    __    ____   ______   ______        _______.
+# |  \ |  | |   ____|\   \  /  \  /   /  /      | /  __  \      /       |
+# |   \|  | |  |__    \   \/    \/   /  |  ,----'|  |  |  |    |   (----`
+# |  . `  | |   __|    \            /   |  |     |  |  |  |     \   \    
+# |  |\   | |  |____    \    /\    /    |  `----.|  `--'  | .----)   |   
+# |__| \__| |_______|    \__/  \__/      \______| \______/  |_______/      
+
+# -------------------------------------------------------------------------
+# script to get logs of ansible playbook and also check if loop script is running 
+
+*/3 * * * * /bin/sh /code/newcos-telemetry/ansible/sbc/scripts/start_ssh.sh
+* * * * * /bin/sh /code/newcos-telemetry/ansible/sbc/scripts/start_calls.sh

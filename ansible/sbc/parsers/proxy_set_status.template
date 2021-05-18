@@ -1,0 +1,16 @@
+Value id (\d+)
+Value name (\S+)
+Value mode (Load Balancing|\S+)
+Value keep_alive (\S+)
+Value status (\S+|\S+\s\S+)
+Value ip_address (\S+)
+Value priority (\S+)
+Value weight (\S+)
+Value success_count (\d+)
+Value failed_count (\d+)
+
+Start
+  ^\s+${id}\s+${name}\s+${mode}\s+${keep_alive}\s+${status}.*
+  ^\s+${ip_address}\s+${priority}\s+${weight}\s+${success_count}\s+${failed_count} -> Record
+  
+

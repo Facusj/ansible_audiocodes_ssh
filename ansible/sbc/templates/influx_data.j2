@@ -1,0 +1,127 @@
+{% set days = uptime[0].days  %}
+{% set hours = uptime[0].hours  %}
+{% set minutes = uptime[0].minutes  %}
+{% set seconds = uptime[0].seconds  %}
+{% set cpu_percentage = cpu_percentage %}
+{% set version = version %}
+{% set proxy_set = proxy_set %}
+{% set alarms = alarms %}
+{% set active_calls = active_calls %}
+{% set last_calls = last_calls %}
+{% set rtd_jitter = jitter %}
+{% set usage_statistics = usage_statistics %}
+{% set config_ip_group = config_ip_group %}
+
+{% set uptime_seconds = ((days | int) * 24 * 60 * 60) + ((hours | int) * 60 * 60) + ((minutes | int) * 60) + (seconds | int) %}
+
+{% set dicc = {} %}
+{% set contador_ipg = {} %}
+{% set temp = namespace(count=1) %}
+
+{# Se transforman los estados de ONLINE y OFFLINE a valores numericos #}
+
+{% for proxy in proxy_set %}
+    {% if 'ONLINE' in proxy.status %}
+        {% set proxy_set_status_code = '1' %}
+        {% set _ = proxy.update({'status_code': proxy_set_status_code}) %}
+    {% else %}
+        {% set proxy_set_status_code = '0' %}
+        {% set _ = proxy.update({'status_code': proxy_set_status_code}) %}
+    {% endif %}
+{% endfor %}
+
+{# CONFIGURACION DE ACTIVE CALLS POR IP GROUP #}
+
+{# Se guarda en la variable de diccionario, el ID del grupo id : Su respectivo nombre #}
+{# Ej: 1 : ProxyTeams #}
+
+{% for config in config_ip_group %}
+    {% do dicc.update({config.grupo_ip : config.grupo_ip_nombre}) %}
+{% endfor %}
+
+{# Recorre llamadas activas y guarda en call el nombre del ip group guardado en dicc #}
+
+{% for call in active_calls %}
+    {% if call.ip_group == "" %}
+        {% do call.update({"ip_group" : dicc.get("0") }) %}
+    {% else%}
+        {% do call.update({"ip_group" : dicc.get(call.ip_group) }) %}
+    {% endif %}
+{% endfor %}
+
+{# Guarda en contador_ipg las ocurrencias que existen entre llamadas activas y los datos de referencia #}
+
+{% if active_calls | length != 0 %}
+    {% for active in active_calls %}
+        {% if active.ip_group is defined %}
+            {% if active.ip_group not in contador_ipg %}
+                {% do contador_ipg.update({active.get("ip_group") : 1 }) %}
+            {% else %}
+                {% set temp.count = contador_ipg.get(active.ip_group) %}
+                {% set temp.count = temp.count + 1 %}
+                {% do contador_ipg.update({active.get("ip_group") : temp.count }) %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    {% for reference in config_ip_group %}
+        {% if reference.grupo_ip_nombre not in contador_ipg %}
+            {% do contador_ipg.update({reference.grupo_ip_nombre : 0 }) %}
+        {% endif %}
+    {% endfor %}
+{% else %}
+    {% for name in config_ip_group %}
+        {% do contador_ipg.update({name.grupo_ip_nombre : 0 }) %}
+    {% endfor %}
+{% endif %}
+
+{# FIN DE CONFIGURACION DE ACTIVE CALLS POR IP GROUP #}
+
+{# Divide las llamadas activas a la mitad, ya que se registran llamadas incoming y outgoing #}
+
+{% if active_calls | length == 0 %}
+    {% set concurrent_calls = '0' %}
+{% else %}
+    {% if active_calls is defined and active_calls[0] is defined %}
+        {% set concurrent_calls = active_calls[0].active_calls | int * 0.5 %}
+    {% endif %}
+{% endif %}
+
+{% set channel_stats = {} %}
+{% set _ = channel_stats.update({'avg_jitter': '0'}) %}
+{% set _ = channel_stats.update({'avg_rtd': '0'}) %}
+{% set _ = channel_stats.update({'total_jitter': '0'}) %}
+{% set _ = channel_stats.update({'total_rtd': '0'}) %}
+
+{% if (rtd_jitter is defined) and rtd_jitter | length > '0' %}
+    {% for channel in rtd_jitter %}
+        {% set _ = channel_stats.update({'total_rtd': (channel_stats.total_rtd | int) + (channel.rtd | int)}) %}
+        {% set _ = channel_stats.update({'total_jitter': (channel_stats.total_jitter | int) + (channel.jitter | int)}) %}      
+    {% endfor %}
+    {% set _ = channel_stats.update({'avg_jitter': (channel_stats.total_jitter | int) / (rtd_jitter | length)}) %}
+    {% set _ = channel_stats.update({'avg_rtd': (channel_stats.total_rtd | int) / (rtd_jitter | length)}) %}
+{% endif %}
+
+{# Se guardan las variables en un dict para su escritura en influxDB #}
+
+{% set influx_data = {} %}
+{% set _ = influx_data.update({'uptime': uptime_seconds}) %}
+{% set _ = influx_data.update({'cpu': cpu_percentage[0].cpu_percentage}) %}
+{% set _ = influx_data.update({'ram': cpu_percentage[0].ram_percentage}) %}
+{% set _ = influx_data.update({'board': version[0].board}) %}
+{% set _ = influx_data.update({'sbc_ip': version[0].board_ip_address}) %}
+{% set _ = influx_data.update({'sbc_mask': version[0].board_subnet}) %}
+{% set _ = influx_data.update({'sbc_dw': version[0].board_dw}) %}
+{% set _ = influx_data.update({'sbc_dw': version[0].control_protocols}) %}
+{% set _ = influx_data.update({'codecs': version[0].coders_voice}) %}
+{% set _ = influx_data.update({'channel_type': version[0].channel_type}) %} 
+{% set _ = influx_data.update({'channel_stats': channel_stats}) %}
+{% set _ = influx_data.update({'alarms': alarms}) %}
+{% set _ = influx_data.update({'active_calls': active_calls}) %}
+{% set _ = influx_data.update({'last_calls': last_calls}) %}
+{% set _ = influx_data.update({'proxy_set_status': proxy_set}) %}
+{% set _ = influx_data.update({'concurrent_calls': concurrent_calls}) %}
+{% set _ = influx_data.update({'usage_statistics': usage_statistics}) %}
+{% set _ = influx_data.update({'ip_group_nombre': dicc}) %}
+{% set _ = influx_data.update({'contador_ipg': contador_ipg}) %}
+
+{{ influx_data | to_nice_json }}

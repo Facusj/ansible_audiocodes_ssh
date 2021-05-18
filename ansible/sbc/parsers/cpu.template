@@ -1,0 +1,7 @@
+Value cpu_percentage (\d+)
+Value ram_percentage (\d+)
+
+Start
+  ^.*CPUs utilization:.* Voice ${cpu_percentage}%.*
+  ^.*CPUs Used Memory:.* Voice ${ram_percentage}%.* -> Record
+

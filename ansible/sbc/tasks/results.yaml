@@ -1,0 +1,47 @@
+    # show results
+
+    - name: --- parsed uptime ---
+      debug:
+        msg: "data parseada: {{uptime | to_nice_json}}"
+
+
+    - name: --- parsed cpu utilization ---
+      debug:
+        msg: "data parseada: {{cpu_percentage | to_nice_json}}"
+
+    - name: --- parsed version ---
+      debug:
+        msg: "data parseada: {{version | to_nice_json}}"
+
+    - name: --- parsed proxy-set-status ---
+      debug:
+        msg: "data parseada: {{proxy_set | to_nice_json}}"
+
+    - name: --- parsed alarms ---
+      debug:
+        msg: "data parseada: {{alarms | to_nice_json}}"
+
+    - name: --- parsed active-calls ---
+      debug:
+        msg: "data parseada: {{active_calls | to_nice_json}}"
+
+    - name: --- parsed last-calls ---
+      debug:
+        msg: "data parseada: {{last_calls | to_nice_json}}"
+
+    - name: --- parsed icmp-data ---
+      debug:
+        msg: "data parseada: {{icmp_parsed | to_nice_json}}"
+
+    - name: --- parsed rtd-jitter ---
+      debug:
+        msg: "data parseada: {{rtd_jitter | to_nice_json}}"
+
+
+    - name: --- parsed usage-statistics ---
+      debug:
+        msg: "data parseada: {{usage_statistics | to_nice_json}}" 
+
+    - name: --- parsed config-ip-group ---
+      debug:
+        msg: "data parseada: {{config_ip_group | to_nice_json}}" 

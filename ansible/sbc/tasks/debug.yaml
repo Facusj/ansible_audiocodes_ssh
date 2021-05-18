@@ -1,0 +1,52 @@
+    # debug    
+    - name: --- debug rtd-jitter data ---
+      debug:
+        msg: "{{audiocodesOutput.output[0]}}"
+      when: audiocodesOutput is defined
+  
+    - name: --- debug system version ---
+      debug:
+        msg: "{{audiocodesOutput.output[1]}}"
+      when: audiocodesOutput is defined
+  
+    - name: --- debug cpu-util ---
+      debug:
+        msg: "{{audiocodesOutput.output[2]}}"
+      when: audiocodesOutput is defined
+  
+    - name: --- debug uptime ---
+      debug:
+        msg: "{{audiocodesOutput.output[3]}}"
+      when: audiocodesOutput is defined
+  
+    - name: --- debug proxy_set status ---
+      debug:
+        msg: "{{audiocodesOutput.output[5]}}"
+      when: audiocodesOutput is defined
+  
+    - name: --- debug sbc alarms ---
+      debug:
+        msg: "{{audiocodesOutput.output[6]}}"
+      when: audiocodesOutput is defined
+  
+    - name: --- debug sbc active-calls ---
+      debug:
+        msg: "{{audiocodesOutput.output[7]}}"
+      when: audiocodesOutput is defined
+
+    - name: --- debug sbc last 10 calls
+      debug:
+        msg: "{{audiocodesOutput.output[8]}}"
+      when: audiocodesOutput is defined
+
+    - name: --- debug sbc call statistics
+      debug:
+        msg: "{{audiocodesOutput.output[9]}}"
+      when: audiocodesOutput is defined
+
+    - debug:
+        msg: "{{icmp_output}}"
+      delegate_to: localhost
+      when: icmp_output is defined
+
+    

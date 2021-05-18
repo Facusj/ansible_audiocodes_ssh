@@ -1,0 +1,30 @@
+Value board (.*)
+Value board_type (.*)
+Value board_ip_address (\S+)
+Value board_subnet (\S+)
+Value board_dw (\S+)
+Value pstn_protocols (.*?)
+Value dscp_voice (\S+)
+Value security (.*?)
+Value e1_trunks (\d+)
+Value t1_trunks (\d+)
+Value channel_type (.*?)
+Value coders_voice (.*?)
+Value control_protocols (.*?)
+Value coders_default (.*?)
+Value hardware_version (\S+)
+
+Start
+  ^;Board: ${board}.* 
+  ^;HW Board Type: ${board_type}.*
+  ^;Board IP Address: ${board_ip_address}.* 
+  ^;Board Subnet Mask: ${board_subnet}.*
+  ^;Board Default Gateway: ${board_dw}.*
+  ^.*;PSTN Protocols: ${pstn_protocols};DSP Voice features: ${dscp_voice}\s;Security: ${security};E1Trunks=${e1_trunks}\s;T1Trunks=${t1_trunks}.*;Channel Type:\s${channel_type};.*;Coders:\s${coders_voice};Control Protocols: ${control_protocols};.*;Coders:\s${coders_default};.*
+  ^.*;PSTN Protocols: ${pstn_protocols};DSP Voice features: ${dscp_voice}\s;Security: ${security};E1Trunks=${e1_trunks}\s;T1Trunks=${t1_trunks}.*;Channel Type:\s${channel_type};.*;Coders:\s${coders_voice};Control Protocols: ${control_protocols};.*
+  ^.*;Channel Type:\s${channel_type};.*;Coders:\s${coders_voice};Control Protocols: ${control_protocols};.*;Coders:\s${coders_default};.*
+  ^.*;Channel Type:\s${channel_type};.*;Coders:\s${coders_voice};Control Protocols: ${control_protocols};.*
+  ^.*;Security: ${security}\s;Coders:\s${coders_voice}\s;.*;Channel Type:\s${channel_type}\s;.*;Control Protocols:\s${control_protocols}\s;.*;Coders:\s${coders_default};.*
+  ^.*HardwareVersion: ${hardware_version}.* -> Record
+  
+

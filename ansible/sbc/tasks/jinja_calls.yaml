@@ -1,0 +1,11 @@
+- set_fact:
+    influx_calls: "{{lookup('template', 'templates/AC_data.j2') | from_json }}"
+
+- set_fact:
+    influx_count: "{{ influx_calls.contador_ipg }}"
+
+- debug:
+    msg: "{{ influx_calls | to_nice_json }}"
+
+- debug:
+    msg: "{{ influx_calls | to_nice_json }}" 

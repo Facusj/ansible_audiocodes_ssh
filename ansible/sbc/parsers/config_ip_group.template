@@ -1,0 +1,9 @@
+Value grupo_ip (.*)
+Value grupo_ip_nombre (.*)
+Value proxy_set_nombre (.*)
+
+
+Start
+  ^\s+ip-group\s+${grupo_ip}.*
+  ^\s+name\s+"${grupo_ip_nombre}".*
+  ^\s+proxy-set-name\s+"${proxy_set_nombre}".* -> Record

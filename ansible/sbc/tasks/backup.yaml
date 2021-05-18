@@ -1,0 +1,7 @@
+- copy:
+    content: "{{audiocodesOutput.output[4]}}"
+    dest: "{{backup_path}}/backup_{{ansible_host}}_{{tstamp['stdout_lines'][0]}}.conf"
+    owner: owner
+    group: group
+    mode: '0744'
+  delegate_to: localhost

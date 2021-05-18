@@ -1,0 +1,13 @@
+# jinja templates
+- set_fact:
+    influx_result: "{{lookup('template', 'templates/influx_data.j2') | from_json}}"
+
+- set_fact:
+    influx_count: "{{ influx_result.contador_ipg }}"
+
+- debug:
+    msg: "{{ influx_result | to_nice_json }}"
+
+- debug:
+    msg: "{{ influx_count | to_nice_json }}"
+    

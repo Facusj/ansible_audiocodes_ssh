@@ -1,0 +1,6 @@
+Value rtd (\S+)
+Value jitter (\S+)
+Value channel (\S+)
+
+Start
+  ^.*Channel\s+${channel}\s+stats: \S+\s+\d+,\s+RTT:\s+${rtd}\s\S+\s+Jitter:\s+${jitter}.* -> Record

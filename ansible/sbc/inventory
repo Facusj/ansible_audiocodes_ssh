@@ -1,0 +1,23 @@
+[sbc]
+192.168.0.1 ansible_host=192.168.0.1
+
+
+[sbc:vars]
+ansible_port=22
+influxdb_ip = influx.ip
+influxdb_port = 443
+influxdb_username = user
+influxdb_password = password
+influxdb_database_name = database
+influxdb_measurement_sbc = sbc
+influxdb_measurement_service_status = proxy_set
+influxdb_measurement_last_calls = last_calls
+influxdb_measurement_alarms = alarms
+influxdb_measurement_icmp = icmp
+influxdb_measurement_usage_statistics = usage
+influxdb_measurement_active_calls = active_calls
+influxdb_measurement_active_calls_ipg = contador_ipg
+influxdb_measurement_ipg_alert = contador_ipg_alarm
+influxdb_measurement_proxy_alarm = proxy_alarm
+ansible_python_interpreter=/usr/bin/python3
+

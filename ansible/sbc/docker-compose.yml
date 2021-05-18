@@ -1,0 +1,35 @@
+version: '3'
+services: 
+  telegraf:
+    image: telegraf:1.17-alpine
+    restart: on-failure
+    environment:
+      HOST_PROC: /rootfs/proc
+      HOST_SYS: /rootfs/sys
+      HOST_ETC: /rootfs/etc
+    hostname: localhost
+    volumes:
+    - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /sys:/rootfs/sys:ro
+    - /proc:/rootfs/proc:ro
+    - /etc:/rootfs/etc:ro
+    network_mode: host
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  telemetry:
+    image: telemetry
+    restart: on-failure
+    volumes:
+    - ./:/code/newcos-telemetry/ansible/sbc
+    - ./crontab/telemetry-cron:/etc/cron.d/telemetry-cron
+    tty: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"

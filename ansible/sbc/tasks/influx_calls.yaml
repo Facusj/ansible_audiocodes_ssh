@@ -1,0 +1,26 @@
+  - name: --- Write points into database (sbc active calls IPG)
+    influxdb_write:
+      hostname: "{{influxdb_ip}}"
+      database_name: "{{influxdb_database_name}}"
+      port: "{{influxdb_port}}"
+      ssl: yes
+      username: "{{influxdb_username}}"
+      password: "{{influxdb_password}}"
+      validate_certs: no
+      data_points:
+        - measurement: "{{influxdb_measurement_active_calls_ipg}}"
+          tags:
+            host: "{{ansible_host}}"
+            active_calls_ipg: "{{item.key}}"
+          time: "{{ ansible_date_time.iso8601 }}"
+          fields:
+            active_calls_count: "{{item.value}}"
+            time: "{{ ansible_date_time.iso8601 }}"
+    ignore_errors: yes
+    delegate_to: localhost
+    loop: "{{ lookup('dict' , influx_count) }}"
+
+  - name: Alarm
+    shell: "curl -i -k XPOST https://influx.com.ar/write?db={{influxdb_database_name}} -u user:password --data-binary '{{influxdb_measurement_ipg_alert}},active_calls_ipg={{item.key}},host={{ansible_host}} active_calls_count={{item.value}}'"
+    delegate_to: localhost
+    loop: "{{ lookup('dict' , influx_count) }}" 

@@ -1,0 +1,5 @@
+  - set_fact:
+      config_ip_group: "{{sbc[0] | parse_cli_textfsm('parsers/config_ip_group.template') }}"
+
+  - set_fact:
+      active_calls: "{{ sbc[1] | parse_cli_textfsm('parsers/active_calls.template') }}" 

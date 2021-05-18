@@ -1,0 +1,16 @@
+Value active_calls (\d+)
+Value call_start_time (\d+:\d+:\d+.\d+\s+\S+\s\S+\s\S+\s\d+\s\d+)
+Value endpoint (\S+)
+Value caller (\S+@\S+)
+Value callee (\S+@\S+)
+Value direction (\S+)
+Value remote_ip (\S+)
+Value ip_group (\d+)
+Value duration (\d+:\d+:\d+)
+Value call_state (\S+)
+Value session_id (\S+:\S+:\S+)
+
+Start
+  ^Total Active Calls: ${active_calls}.* -> Record
+  ^\S${call_start_time}\S${endpoint}\s+\S${caller}\s+\S${callee}\s+\S${direction}\s+\S${remote_ip}(\s|\(IPG-${ip_group}\))\S${duration}\S${call_state}\s+\S${session_id}.* -> Record
+  ^\S${call_start_time}\S${endpoint}\s+\S${caller}\s+\S${callee}\s+\S${direction}\s+\S${remote_ip}(\s|\(IPG-${ip_group}\))\S${duration}\S${call_state}\s+\S${session_id}.* -> Record

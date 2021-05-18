@@ -1,0 +1,16 @@
+Value call_end_time (\d+:\d+:\d+.\d+\s+\S+\s\S+\s\S+\s\d+\s\d+)
+Value type (\S+|\S+\s+)
+Value ip_group (.*?)
+Value caller (\s\S+\s\S+|\s\S+\s\s+|\s\S+|\S+)
+Value callee (\s\S+\s\S+|\s\S+\s\s+|\s\S+|\S+)
+Value direction (\S+\s|\S+)
+Value remote_ip (\S+|\S+\s|\S+\s+)
+Value duration (.*?)
+Value termination_reason (\S+)
+Value session_id (\S+)
+
+Start
+  ^\|${call_end_time}\|${type}\|${ip_group}\|${caller}.*?\|${callee}.*?\|${direction}\|${remote_ip}\|${duration}\|${termination_reason}\s+\|${session_id}.* -> Record
+  ^\|${call_end_time}\|${ip_group}\|${caller}.*?\|${callee}.*?\|${direction}\|${remote_ip}\|${duration}\|${termination_reason}\s+\|${session_id}.* -> Record
+
+
