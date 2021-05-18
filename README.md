@@ -20,8 +20,8 @@ En ambos casos, los scripts python son llamados desde cron a través de un bash 
 Cron config:
 ```
 # m h  dom mon dow   command
-*/3 * * * * /code/newcos-telemetry/ansible/sbc/scripts/start.sh
-0 0 */2 * * rm /code/newcos-telemetry/ansible/sbc/log/*.log 
+*/3 * * * * /code/telemetry/ansible/sbc/scripts/start.sh
+0 0 */2 * * rm /code/telemetry/ansible/sbc/log/*.log 
 ```
 
 #### telemetry
